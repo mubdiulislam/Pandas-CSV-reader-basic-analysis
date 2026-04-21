@@ -1,5 +1,4 @@
-# Sales Data Analysis — 2024
-# Dataset: Bangladesh Regional Sales (500 orders)
+# Sales Data Analysis
 
 import os
 import numpy as np
@@ -11,8 +10,7 @@ DATA_DIR   = os.path.join(BASE_DIR, "data")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-
-# ── 1. Load ───────────────────────────────────────────────────
+# Load ───────────────────────────────────────────────────
 
 df = pd.read_csv(os.path.join(DATA_DIR, "sales_data.csv"), parse_dates=["order_date"])
 
@@ -20,8 +18,7 @@ print("=" * 55)
 print("  SALES DATA — 2024 ANALYSIS")
 print("=" * 55)
 
-
-# ── 2. Inspect ────────────────────────────────────────────────
+# Inspect ────────────────────────────────────────────────
 
 print("\n-- First 5 rows --")
 print(df.head())
@@ -40,8 +37,7 @@ print(df.isnull().sum())
 print("\n-- Descriptive statistics --")
 print(df[["quantity", "unit_price", "total_price", "discount_%"]].describe().round(2))
 
-
-# ── 3. Add computed columns ───────────────────────────────────
+# Add computed columns ───────────────────────────────────
 
 # Label each order by size using pd.cut
 df["order_size"] = pd.cut(
@@ -59,22 +55,20 @@ print(df["order_size"].value_counts().to_string())
 print("\n-- Discounted vs full price --")
 print(df["discounted"].value_counts().to_string())
 
-
-# ── 4. Sort ───────────────────────────────────────────────────
+# Sort ───────────────────────────────────────────────────
 
 print("\n-- Top 5 orders by value --")
 top5 = df.sort_values("total_price", ascending=False).head(5)
 print(top5[["order_id", "product", "region", "total_price"]].to_string(index=False))
 
 
-# ── 5. Text filtering with str.contains ───────────────────────
+# Text filtering with str.contains ───────────────────────
 
 print("\n-- Orders for Laptop or Chair --")
 text_filter = df[df["product"].str.contains("Laptop|Chair", case=False)]
 print(text_filter[["order_id", "product", "quantity", "total_price"]].head(6).to_string(index=False))
 
-
-# ── 6. Filter & slice ─────────────────────────────────────────
+# Filter & slice ─────────────────────────────────────────
 
 delivered = df[df["status"] == "Delivered"].copy()
 print(f"\n-- Delivered orders: {len(delivered)} / {len(df)}")
@@ -96,8 +90,7 @@ q1 = df[
 ].copy()
 print(f"\n-- Q1 2024: {len(q1)} orders  |  Revenue: BDT {q1['total_price'].sum():,.2f}")
 
-
-# ── 7. Groupby & aggregation ──────────────────────────────────
+# Groupby & aggregation ──────────────────────────────────
 
 print("\n-- Revenue by category --")
 cat_rev = df.groupby("category")["total_price"].sum().sort_values(ascending=False)
@@ -113,23 +106,20 @@ rep_display = rep_perf.copy()
 rep_display["revenue"] = rep_display["revenue"].apply(lambda x: f"BDT {x:,.2f}")
 print(rep_display.to_string())
 
-
-# ── 8. Concatenate two regions ────────────────────────────────
+# Concatenate two regions ────────────────────────────────
 
 dhaka      = df[df["region"] == "Dhaka"].copy()
 chittagong = df[df["region"] == "Chittagong"].copy()
 combined   = pd.concat([dhaka, chittagong])
 print(f"\n-- Dhaka + Chittagong combined: {len(combined)} orders")
 
-
-# ── 9. Iterate over a few rows ────────────────────────────────
+# Iterate over a few rows ────────────────────────────────
 
 print("\n-- Sample order walkthrough --")
 for idx, row in df.head(3).iterrows():
     print(f"  {row['order_id']} | {row['product']:15s} | {row['sales_rep']:15s} | BDT {row['total_price']:>10,.2f}")
 
-
-# ── 10. Charts ────────────────────────────────────────────────
+# Charts ────────────────────────────────────────────────
 
 df["month"] = df["order_date"].dt.to_period("M")
 
@@ -143,21 +133,21 @@ monthly_rev["month"] = monthly_rev["month"].astype(str)
 fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 fig.suptitle("Sales Analysis — 2024", fontsize=14, fontweight="bold")
 
-# Chart 1 — Revenue by category (bar)
+# Chart: Revenue by category (bar)
 cat_rev.plot(kind="bar", ax=axes[0], color="steelblue", edgecolor="white")
 axes[0].set_title("Revenue by Category")
 axes[0].set_xlabel("")
 axes[0].set_ylabel("Total Revenue (BDT)")
 axes[0].tick_params(axis="x", rotation=30)
 
-# Chart 2 — Monthly revenue trend (line)
+# Chart: Monthly revenue trend (line)
 axes[1].plot(monthly_rev["month"], monthly_rev["total_price"], marker="o", color="darkorange")
 axes[1].set_title("Monthly Revenue (Delivered)")
 axes[1].set_xlabel("Month")
 axes[1].set_ylabel("Revenue (BDT)")
 axes[1].tick_params(axis="x", rotation=45)
 
-# Chart 3 — Order value distribution (histogram)
+# Chart: Order value distribution (histogram)
 axes[2].hist(df["total_price"], bins=30, color="seagreen", edgecolor="white")
 axes[2].set_title("Order Value Distribution")
 axes[2].set_xlabel("Order Value (BDT)")
@@ -169,8 +159,7 @@ plt.savefig(chart_path, dpi=150)
 plt.show()
 print(f"\n[OK] Chart saved -> {chart_path}")
 
-
-# ── 11. Save results ──────────────────────────────────────────
+# Save results ──────────────────────────────────────────
 
 print("\n" + "=" * 55)
 print("  SAVING RESULTS")
